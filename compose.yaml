@@ -1,0 +1,25 @@
+# Local test topology. A single service mirrors the Railway service:
+#   app -> the EdgeEver self-hosted server (official image), SQLite + files on a /data volume, admin via env.
+# The template runs the official image unmodified, configured through environment variables.
+name: edgeever-railway-test
+
+networks:
+  default:
+    name: edgeever-railway-test
+
+services:
+  app:
+    image: ghcr.io/tianma-if/edgeever:1.40.0@sha256:611ad6813dbf456bfc2e2fb714c6c21b19ef6852daab5d491716e5c82ded9c50
+    restart: unless-stopped
+    init: true
+    environment:
+      PORT: '8787'
+      EDGE_EVER_AUTH_USERNAME: ${EDGEEVER_TEST_USERNAME:-admin}
+      EDGE_EVER_AUTH_PASSWORD: ${EDGEEVER_TEST_PASSWORD:-local-test-only-admin-password}
+    ports:
+      - '127.0.0.1:${EDGEEVER_TEST_PORT:-18787}:8787'
+    volumes:
+      - data:/data
+
+volumes:
+  data:
